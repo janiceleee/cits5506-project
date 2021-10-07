@@ -1,0 +1,44 @@
+/* General styling */
+* { 
+    font-family: Helvetica, sans-serif; /* Choosing a web safe font to ensure consistency for all browsers*/
+    font-size: 17px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+/* Titles */
+h1 {
+    color: purple;
+    text-align: center;
+    font-size: 50px;
+    font-weight: bold;
+}
+
+h2 {
+    text-align: center;
+    font-size: 30px; 
+}
+
+/* Car bays */ 
+.grid-container {
+    display: grid;
+    padding: 30px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 200px;
+    gap: 100px;
+}
+
+.grid-item_occupied, .grid-item_vacant {
+    border: 3px solid black;
+    padding: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.grid-item_occupied {
+    background-color: red;
+}
+
+.grid-item_vacant {
+    background-color: green;
+}
