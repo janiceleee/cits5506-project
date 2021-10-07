@@ -1,9 +1,7 @@
-#create database
+#initialise database with mock values
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from app import *
-
-
 
 #create some mock bays
 bay1 = Bay(bay_id = '1', bay_type = 'Car',  bay_user_group = "student", bay_status = 'vacant', bay_restrictions = 3) 

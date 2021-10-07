@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-#sourcce:https://stackoverflow.com/questions/64642122/how-to-send-real-time-sensor-data-to-pc-from-raspberry-pi-zero
-
+#source:https://stackoverflow.com/questions/64642122/how-to-send-real-time-sensor-data-to-pc-from-raspberry-pi-zero
+#UDP server to receive data from raspberry pi
 
 import socket
 import sys

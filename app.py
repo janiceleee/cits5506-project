@@ -3,7 +3,6 @@ from flask.helpers import url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import datetime 
-#from server import *
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///parking.db'
@@ -26,6 +25,7 @@ class Bay(db.Model):
 
 db.create_all() #creates the table 
 
+#moved to database.py
 """
 #create some mock bays
 bay1 = Bay(bay_id = '1', bay_type = 'Car',  bay_user_group = "student", bay_status = 'vacant', bay_restrictions = 3) 
@@ -50,10 +50,6 @@ db.session.add(bay8)
 db.session.add(bay9) 
 db.session.commit() #commit change """
 
-#insert code here to get sensor reading + change car bay 1 bay_status depending on our sensor reading
-#server()
-#print(server.bay_status)
-
 #num_available_bays = Bay.query.filter_by(bay_status = 'vacant').count() #get number of available car spots
 
 @app.route('/') #landing page
@@ -65,10 +61,13 @@ def index():
       'num_available_bays' : num_available_bays,
       'time': timeString
       }
+
+		#debugging - check if database is updated
     one = db.session.query(Bay).get(1)
     count = db.session.query(Bay).count()
     print(one.bay_status)
     print(count)
+
     #finds the index.html inside the templates folder and the templateData variables are dynamically inserted into the index.html rendered
     return render_template('index.html', **templateData) 
 
