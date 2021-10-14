@@ -22,19 +22,20 @@ print(f'Starting UDP server on {host} port {port}')
 sock.bind(server_address)
 
 while True:
+	#try expect 
 	# Wait for message
 	message, address = sock.recvfrom(4096)
 
 	print(f'Received {len(message)} bytes:')
-	id, x, y, z = unpack('4f', message)
-	print(f'id: {id}, X: {x}, Y: {y}, Z: {z}')
-	
+	id, bvs, x, y, z = unpack('5f', message)
 
-	if x > 5 and y > 5 and z > 5: #some condition to see if bay is occupied
-		Bay.query.filter(Bay.bay_id == int(id)).update({'bay_status': 'occupied'})
-		print('occupied')
+	print(f'id: {id}, bvs:{bvs}, X: {x}, Y: {y}, Z: {z}')
+	
+ 	if bool(bvs): #assume bay is vacant: 1; occupied: 0
+		Bay.query.filter(Bay.bay_id == int(id)).update({'bay_status': 'vacant'})
+		print('bay changed to vacant')
 		db.session.commit()
 	else:
-		Bay.query.get(int(id)).update({'bay_status': 'vacant'})
-		print('vacant')
+		Bay.query.get(int(id)).update({'bay_status': 'occupied'})
+		print('bay changed to occupied')
 		db.session.commit()
