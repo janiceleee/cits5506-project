@@ -25,42 +25,31 @@ class Bay(db.Model):
 
 db.create_all() #creates the table 
 
-#moved to database.py
-"""
-#create some mock bays
-bay1 = Bay(bay_id = '1', bay_type = 'Car',  bay_user_group = "student", bay_status = 'vacant', bay_restrictions = 3) 
-bay2 = Bay(bay_id = '2', bay_type = 'Motorbike',  bay_user_group = "student", bay_status = 'occupied', bay_restrictions = 4) 
-bay3 = Bay(bay_id = '3', bay_type = 'Car',  bay_user_group = "student", bay_status = 'occupied', bay_restrictions = 3) 
-bay4 = Bay(bay_id = '4', bay_type = 'Motorbike',  bay_user_group = "student", bay_status = 'vacant', bay_restrictions = 4) 
-bay5 = Bay(bay_id = '5', bay_type = 'Car',  bay_user_group = "student", bay_status = 'occupied', bay_restrictions = 3)
-bay6 = Bay(bay_id = '6', bay_type = 'Car',  bay_user_group = "student", bay_status = 'occupied', bay_restrictions = 3)
-bay7 = Bay(bay_id = '7', bay_type = 'Car',  bay_user_group = "staff", bay_status = 'occupied', bay_restrictions = 3)
-bay8 = Bay(bay_id = '8', bay_type = 'Car',  bay_user_group = "staff", bay_status = 'occupied', bay_restrictions = 3)
-bay9 = Bay(bay_id = '9', bay_type = 'Car',  bay_user_group = "staff", bay_status = 'vacant', bay_restrictions = 3)
-
-#add them to the table
-db.session.add(bay1) 
-db.session.add(bay2) 
-db.session.add(bay3) 
-db.session.add(bay4) 
-db.session.add(bay5) 
-db.session.add(bay6) 
-db.session.add(bay7) 
-db.session.add(bay8) 
-db.session.add(bay9) 
-db.session.commit() #commit change """
-
-#num_available_bays = Bay.query.filter_by(bay_status = 'vacant').count() #get number of available car spots
 
 @app.route('/') #landing page
 def index(): 
     now = datetime.datetime.now()
     timeString = now.strftime("%Y-%m-%d %H:%M") 
-    num_available_bays = Bay.query.filter_by(bay_status = 'vacant').count()
+
+		#get number of available car spots
+    num_available_bays = Bay.query.filter_by(bay_status = 'vacant').count() 
+
+		#get information about bay in database
+    bay = db.session.query(Bay)
+    
     templateData = {
       'num_available_bays' : num_available_bays,
-      'time': timeString
-      }
+      'time': timeString,
+			'bay1': bay.get(1).bay_status,
+			'bay2': bay.get(2).bay_status,
+			'bay3': bay.get(3).bay_status,
+			'bay4': bay.get(4).bay_status,
+			'bay5': bay.get(5).bay_status,
+			'bay6': bay.get(6).bay_status,
+			'bay7': bay.get(7).bay_status,
+			'bay8': bay.get(8).bay_status,
+			'bay9': bay.get(9).bay_status,
+    }
 
 		#debugging - check if database is updated
     one = db.session.query(Bay).get(1)
