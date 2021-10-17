@@ -35,7 +35,7 @@
 
 /*
 #include "UbidotsMicroESP8266.h"
-#define TOKEN  "xxxx-XTma6SeReOcg6s4FO8O4KXN6omJH5o"  // Put here your Ubidots TOKEN
+#define TOKEN  "Your_Token"  // Put here your Ubidots TOKEN
 #define WIFISSID "Your_WiFi_SSID" // Put here your Wi-Fi SSID
 #define PASSWORD "Your_WiFi_Password" // Put here your Wi-Fi password
 Ubidots client(TOKEN);
@@ -64,7 +64,7 @@ ref: https://media.digikey.com/pdf/Data%20Sheets/MEMSIC%20PDFs/MMC5883MA_RevC_4-
 #define PROD_ID1    0x2F      // product id
 
 #define MMC5883MA   0x30      // Sensor I2C address
-#define MMC5883MA_DYNAMIC_RANGE 16
+#define MMC5883MA_DYNAMIC_RANGE 16 // Expect readings of 0-16
 #define MMC5883MA_RESOLUTION    65536
 
 //*****************************************************
@@ -84,17 +84,17 @@ uint8_t count = 0;
 void setup() 
 {
   Wire.begin();                                   // Join I2C bus (address optional for master)
-  Serial.begin(9600);                             // Start USB serial port
+  Serial.begin(9600);                             // Start USB serial port that Raspi needs to listen to
   //client.wifiConnection(WIFISSID, PASSWORD);
-  write_register(INT_CTRL0, 0x04);                // reset internal control
+  write_register(INT_CTRL0, 0x04);                // reset internal control - 0x04 is a byte
 }  
 
 //*****************************************************
-// Main
+//Main
 //*****************************************************
 void loop()
 {
-  //Serial.println("---------");
+  Serial.println("---------");                    // To separate each set of readings
   
   // Variables initialization
   char x_lsb, x_msb, y_lsb, y_msb, z_lsb, z_msb;
@@ -103,7 +103,7 @@ void loop()
   uint8_t id = 0;
   uint8_t payload[6] = {};
 
-  reset_sensor();
+  reset_sensor(); // Write a byte to ctrl register 1 to forget previous magnetic calibration
   
   write_register(INT_CTRL2, 0x40);                // Enables measurement interrupt
   write_register(STATUS, 0x01);                   // Clean measurement interrupt
@@ -115,7 +115,6 @@ void loop()
   
   //Serial.println("Starting measurement");
   write_register(INT_CTRL0, 0X01);                // Start magnetic field measurement
-
   wait_meas();
   
   // Check status register after complete magnetif field measurement
@@ -150,16 +149,15 @@ void loop()
   //client.add("z", z_val);
   //client.sendAll(true);
 //-------------------------------------------------
-  //Serial.println(count++, 7);
-  //delay(6000);       // 6sec delay 10 window size 10 readings in 60secs
-  delay(1000);      //1 sec
+  delay(6000); //6 sec delay = 1 update/min w window size 10
+  //delay(1000); //1 sec delay = 6 update/min w window size 10 //for testing
 }
 
 //*****************************************************
 // Functions definitions
 //*****************************************************
 char read_register(byte REG_ADDR)
-{ 
+{
   char reg_value = 0;
 
   Wire.beginTransmission(byte(MMC5883MA));        // Adress of I2C device
