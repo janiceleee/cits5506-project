@@ -35,7 +35,7 @@
 
 /*
 #include "UbidotsMicroESP8266.h"
-#define TOKEN  "Your_token_here"  // Put here your Ubidots TOKEN
+#define TOKEN  "xxxx-XTma6SeReOcg6s4FO8O4KXN6omJH5o"  // Put here your Ubidots TOKEN
 #define WIFISSID "Your_WiFi_SSID" // Put here your Wi-Fi SSID
 #define PASSWORD "Your_WiFi_Password" // Put here your Wi-Fi password
 Ubidots client(TOKEN);
@@ -76,6 +76,8 @@ void wait_meas(void);
 void reset_sensor(void);
 float parser(char axis_msb, char axis_lsb);
 
+uint8_t count = 0;
+
 //*****************************************************
 // Setup
 //*****************************************************
@@ -92,7 +94,7 @@ void setup()
 //*****************************************************
 void loop()
 {
-  Serial.println("---------");
+  //Serial.println("---------");
   
   // Variables initialization
   char x_lsb, x_msb, y_lsb, y_msb, z_lsb, z_msb;
@@ -100,7 +102,7 @@ void loop()
   uint8_t status_reg = 0;
   uint8_t id = 0;
   uint8_t payload[6] = {};
-  
+
   reset_sensor();
   
   write_register(INT_CTRL2, 0x40);                // Enables measurement interrupt
@@ -108,8 +110,8 @@ void loop()
 
   // Check status register before start magnetic field measurement
   status_reg = read_register(STATUS);
-  Serial.print("Status register before: ");
-  Serial.println(status_reg, BIN);
+  //Serial.print("Status register before: ");
+  //Serial.println(status_reg, BIN);
   
   //Serial.println("Starting measurement");
   write_register(INT_CTRL0, 0X01);                // Start magnetic field measurement
@@ -118,8 +120,8 @@ void loop()
   
   // Check status register after complete magnetif field measurement
   status_reg = read_register(STATUS);
-  Serial.print("Status register after: ");
-  Serial.println(status_reg, BIN);
+  //Serial.print("Status register after: ");
+  //Serial.println(status_reg, BIN);
   
   x_lsb = read_register(XOUT_LSB);                // Read magnetic field - x lsb
   x_msb = read_register(XOUT_MSB);                // Read magnetic field - x msb
@@ -148,8 +150,9 @@ void loop()
   //client.add("z", z_val);
   //client.sendAll(true);
 //-------------------------------------------------
-  
-  delay(5000);       // 5sec delay
+  //Serial.println(count++, 7);
+  //delay(6000);       // 6sec delay 10 window size 10 readings in 60secs
+  delay(1000);      //1 sec
 }
 
 //*****************************************************
@@ -183,12 +186,12 @@ void write_register(byte REG_ADDR, byte VALUE)
 void reset_sensor()
 {
   write_register(INT_CTRL1, 0x80);
-  Serial.println("Sensor reseted");
+  //Serial.println("Sensor reseted");
 }
 //-------------------------------------------------
 void wait_meas()
 {
-  Serial.println("Waiting for measurement");
+  //Serial.println("Waiting for measurement");
   uint8_t status_reg = 0;
   uint8_t meas_finish = 0;
   byte mask = 1;
@@ -198,7 +201,7 @@ void wait_meas()
     status_reg = read_register(STATUS);
     meas_finish = status_reg & mask;
   }
-  Serial.println("Measurement finished");
+  //Serial.println("Measurement finished");
 }
 //-------------------------------------------------
 float parser(char MSB, char LSB)
