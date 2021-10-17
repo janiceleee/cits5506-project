@@ -6,10 +6,11 @@ from time import sleep
 import random
 from struct import pack
 import serial
+import statistics
+from statistics import mode
 
 #get magneto reading from arduino
-#ls /dev/tty* before and after connecting the sensor to determine the serial port
-ser = serial.Serial("/dev/ttyACM1", 9600) #arduino uses 9600 baud
+ser = serial.Serial("/dev/ttyACM0", 9600) #arduino uses 9600 baud
 
 #TODO previous N axis readings
 prv = list() # list of previous x,y,z axis reading
@@ -17,7 +18,7 @@ window_size = 10
 
 isFirst = True
 bay = 1 #bayid of bay 1
-
+ndp = 1 #number of decimal places to round
 
 def get_window():
     """
@@ -29,25 +30,32 @@ def get_window():
         #decodes each line sent on serial port
         #from byte to utf-8 string
         #count = ser.readline()
-        Xout = ser.readline().decode("utf-8")
-        Yout = ser.readline().decode("utf-8")
-        Zout = ser.readline().decode("utf-8")
-        window.append([float(Xout.strip("\r\n")),
-                       float(Yout.strip("\r\n")),
-                       float(Zout.strip("\r\n")) ])
+        Xout = ser.readline().decode("utf-8").strip("\r\n")
+        Yout = ser.readline().decode("utf-8").strip("\r\n")
+        Zout = ser.readline().decode("utf-8").strip("\r\n")
+        Xout = float(Xout)
+        Yout = float(Yout)
+        Zout = float(Zout)
+        window.append([round(Xout, ndp), round(Yout, ndp), round(Zout, ndp)])
 
-    #TODO somehow account for noise in readings
+    #Take mode of window_size measurements to account for noise in readings
+    xvals = [window[i][0] for i in range(len(window))]
+    yvals = [window[i][1] for i in range(len(window))]
+    zvals = [window[i][2] for i in range(len(window))]
+    #print(mode(xvals))
+    #print(mode(yvals))
+    #print(mode(zvals))
+    return [mode(xvals), mode(yvals), mode(zvals)]
+    #return window
 
-    return window
 
-
+bvs = 1 #assume bay is vacant: 1; occupied: 0
 while 1:
     #no adjustment for magnetic declination on the arduino
     #first run saves readings as previous reading without sending anything
     if isFirst:
-        first_window = get_window() #RUN TWICE to let readings settle
-        first_window = get_window()
-        prv = first_window[9] #takes last reading
+        prv = get_window() #RUN TWICE to let readings settle
+        prv = get_window()
         #can be changed to avg(first_window[,0]) to take avg of all x readings in the window
         isFirst = not isFirst
 
@@ -55,13 +63,15 @@ while 1:
     #determine bay vacancy status
     ################################
     window = get_window()
-    ndp = 1 #number of decimal pts to round
-    xchanged = (round(prv[0], ndp) - round(window[9][0], ndp) ) != 0 #maybe keep 2 or 3 decimals???
-    ychanged = (round(prv[1], ndp) - round(window[9][1], ndp) ) != 0 #maybe keep 2 or 3 decimals???
-    zchanged = (round(prv[2], ndp) - round(window[9][2], ndp) ) != 0 #maybe keep 2 or 3 decimals???
-    print("x: {} \t y: {} \t z: {}".format(round(window[9][0], ndp), round(window[9][1], ndp), round(window[9][2], ndp)))
+    xchanged = (prv[0] - window[0]) != 0
+    ychanged = (prv[1] - window[1]) != 0
+    zchanged = (prv[2] - window[2]) != 0
+    print("x: {} \t y: {} \t z: {}".format(window[0], window[1], window[2]))
 
-    bvs = 1 #assume bay is vacant: 1; occupied: 0
+    """
+    Spend time learning the magnitude of change in raw axis readings when the bay is vacant
+    or occupied to formulate a more robust bay status change condition.
+    """
 
     #"calculate" the vacancy based on window
     if xchanged or ychanged or zchanged:
@@ -71,17 +81,14 @@ while 1:
 
     # Create a UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    host, port = '172.20.10.3', 65000 #static ip address of server
+    host, port = '192.168.1.128', 65000 #IP address of server
     server_address = (host, port)
 
     #Pack three 32-bit floats into message and send
-    message = pack('5f', bay, bvs, window[9][0] , window[9][1], window[9][2])
+    message = pack('5f', bay, bvs, window[0], window[1], window[2])
     sock.sendto(message, server_address)
 
     #update previous readings with last reading
-    prv = window[9]
-
+    prv = window
 
     sleep(1) #1sec
-
