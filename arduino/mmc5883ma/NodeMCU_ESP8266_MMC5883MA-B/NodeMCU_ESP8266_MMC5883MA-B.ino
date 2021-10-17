@@ -94,7 +94,7 @@ void setup()
 //*****************************************************
 void loop()
 {
-  Serial.println("---------");                    // To separate each set of readings
+  //Serial.println("---------");                    // To separate each set of readings
   
   // Variables initialization
   char x_lsb, x_msb, y_lsb, y_msb, z_lsb, z_msb;
@@ -133,11 +133,11 @@ void loop()
   y_val = parser(y_msb, y_lsb);
   z_val = parser(z_msb, z_lsb);
 
-  Serial.print("Xout: ");
+  //Serial.print("Xout: ");
   Serial.println(x_val, 7);
-  Serial.print("Yout: ");
+  //Serial.print("Yout: ");
   Serial.println(y_val, 7);
-  Serial.print("Zout: ");
+  //Serial.print("Zout: ");
   Serial.println(z_val, 7);
 
 //-------------------------------------------------
