@@ -4,7 +4,6 @@
 #UDP server to receive data from raspberry pi
 
 import socket
-import sys
 from struct import unpack
 from app import app, db, Bay
 from sqlalchemy.sql import func
@@ -22,7 +21,6 @@ print(f'Starting UDP server on {host} port {port}')
 sock.bind(server_address)
 
 while True:
-	#try expect 
 	# Wait for message
 	message, address = sock.recvfrom(4096)
 

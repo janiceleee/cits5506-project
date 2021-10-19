@@ -65,12 +65,6 @@ def zoneA():
 			'bay9': bay.get(9).bay_status,
     }
 
-		#debugging - check if database is updated
-    one = db.session.query(Bay).get(1)
-    count = db.session.query(Bay).count()
-    print(one.bay_status)
-    print(count)
-
     #finds the index.html inside the templates folder and the templateData variables are dynamically inserted into the index.html rendered
     return render_template('index.html', **templateData) 
 

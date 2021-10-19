@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 
 import socket
-import sys
 from time import sleep
-import random
 from struct import pack
 import serial
-import statistics
 from statistics import mode
 
-#get magneto reading from arduino
-ser = serial.Serial("/dev/ttyACM0", 9600) #arduino uses 9600 baud
+serialPort = "/dev/ttyACM0" #serial port of the arduino
+ipAddress = "192.168.1.128" #IP address of server
 
-#TODO previous N axis readings
+#get magnetometer readings from arduino
+ser = serial.Serial(serialPort, 9600) #arduino uses 9600 baud
+
 prv = list() # list of previous x,y,z axis reading
 window_size = 10
 
@@ -29,7 +28,6 @@ def get_window():
     for i in range(window_size):
         #decodes each line sent on serial port
         #from byte to utf-8 string
-        #count = ser.readline()
         Xout = ser.readline().decode("utf-8").strip("\r\n")
         Yout = ser.readline().decode("utf-8").strip("\r\n")
         Zout = ser.readline().decode("utf-8").strip("\r\n")
@@ -42,11 +40,8 @@ def get_window():
     xvals = [window[i][0] for i in range(len(window))]
     yvals = [window[i][1] for i in range(len(window))]
     zvals = [window[i][2] for i in range(len(window))]
-    #print(mode(xvals))
-    #print(mode(yvals))
-    #print(mode(zvals))
+
     return [mode(xvals), mode(yvals), mode(zvals)]
-    #return window
 
 
 bvs = 1 #assume bay is vacant: 1; occupied: 0
@@ -56,7 +51,7 @@ while 1:
     if isFirst:
         prv = get_window() #RUN TWICE to let readings settle
         prv = get_window()
-        #can be changed to avg(first_window[,0]) to take avg of all x readings in the window
+        
         isFirst = not isFirst
 
     ################################
@@ -81,7 +76,7 @@ while 1:
 
     # Create a UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    host, port = '192.168.1.128', 65000 #IP address of server
+    host, port = ipAddress, 65000 
     server_address = (host, port)
 
     #Pack three 32-bit floats into message and send
