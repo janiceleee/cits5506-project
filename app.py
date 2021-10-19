@@ -26,8 +26,12 @@ class Bay(db.Model):
 db.create_all() #creates the table 
 
 
-@app.route('/') #landing page
-def index(): 
+@app.route('/') #landing page (zones selection)
+def index():
+   return render_template('zones.html')
+
+@app.route('/zoneA') #parking spots 
+def zoneA(): 
     now = datetime.datetime.now()
     timeString = now.strftime("%Y-%m-%d %H:%M") 
 
@@ -36,10 +40,20 @@ def index():
 
 		#get information about bay in database
     bay = db.session.query(Bay)
+
+    #get bay 1 status and update what is displayed for the bay using an if loop.  
+    bay1_status = bay.get(1).bay_status
+    if bay1_status == 'vacant':
+       time_bay1 = 'Stay up to: 3 hours'
+    else: #if bay is occupied, can stay until when change occured to 3 hours later
+      time_bay1 = datetime.datetime.now() + datetime.timedelta(hours=3)
+      time_bay1 = 'Occupied until {}'.format(time_bay1)
     
+    #data to be inputed into the index.html file
     templateData = {
       'num_available_bays' : num_available_bays,
       'time': timeString,
+      'time_bay1': time_bay1,
 			'bay1': bay.get(1).bay_status,
 			'bay2': bay.get(2).bay_status,
 			'bay3': bay.get(3).bay_status,

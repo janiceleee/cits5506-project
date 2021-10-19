@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+   <head>
+      <title>Smart Parking Finder</title>
+      <link rel = 'stylesheet' href = 'static/Project.css'> <!--Link to the CSS file in the static folder-->
+    </head>
+
+   <body>
+       <h1>SMART PARKING FINDER</h1>
+       <h2>Select the Zone you would like to park at!</h2>
+       <div class="container">
+        <!--Picture of UWA campus map-->
+        <img src="https://www.uwa.edu.au/study/-/media/Feature/Program/DCS000201_OpenDay-Map_final.jpg" alt="UWA Campus Map" style="width:60%">
+        <!--Button for Zone A. We note that if this was deployed in real life scenario there would be additional Zones buttons-->
+        <a href='{{ url_for("zoneA") }}'><button class="btn">Zone A</button></a>
+      </div>
+      </body>
+    </html>

@@ -18,7 +18,7 @@ h2 {
     font-size: 30px; 
 }
 
-/* Car bays */ 
+/* Car bays in ZoneA page */ 
 .grid-container {
     display: grid;
     padding: 30px;
@@ -40,3 +40,29 @@ h2 {
 .grid-item_vacant {
     background-color: green;
 }
+
+/* Map and button style - home  page */
+.container {
+    position: relative;
+    width: 100%;
+  }
+  
+  .container img {
+    width: 100%;
+    height: auto;
+  }
+  
+  .container .btn {
+    position: absolute;
+    top: 50%;
+    left: 30%;
+    background-color: #555;
+    color: white;
+    font-size: 16px;
+    padding: 0.5% 0.5%;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    text-align: center;
+  }
+
