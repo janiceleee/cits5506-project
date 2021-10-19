@@ -29,11 +29,11 @@ while True:
 
 	print(f'id: {id}, bvs:{bvs}, X: {x}, Y: {y}, Z: {z}')
 	
- 	if bool(bvs): #assume bay is vacant: 1; occupied: 0
+	if bool(bvs): #assume bay is vacant: 1; occupied: 0
 		Bay.query.filter(Bay.bay_id == int(id)).update({'bay_status': 'vacant'})
 		print('bay changed to vacant')
 		db.session.commit()
 	else:
-		Bay.query.get(int(id)).update({'bay_status': 'occupied'})
+		Bay.query.filter(Bay.bay_id == int(id)).update({'bay_status': 'occupied'})
 		print('bay changed to occupied')
 		db.session.commit()

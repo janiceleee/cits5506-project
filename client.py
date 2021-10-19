@@ -13,7 +13,7 @@ ipAddress = "192.168.1.128" #IP address of server
 ser = serial.Serial(serialPort, 9600) #arduino uses 9600 baud
 
 prv = list() # list of previous x,y,z axis reading
-window_size = 10
+window_size = 11
 
 isFirst = True
 bay = 1 #bayid of bay 1
