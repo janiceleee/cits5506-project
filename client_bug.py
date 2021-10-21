@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# Ensure the sensor is not moved after the initial reading has been set or you may never be able to observe the same set of readings - the bay will be treated as occupied forever
-
 import socket
 from time import sleep
 from struct import pack
@@ -15,14 +13,13 @@ ipAddress = "192.168.1.128" #IP address of server
 ser = serial.Serial(serialPort, 9600) #arduino uses 9600 baud
 
 prv = list() # list of previous x,y,z axis reading
-calibrate_window = 21
 window_size = 11
 
 isFirst = True
 bay = 1 #bayid of bay 1
 ndp = 1 #number of decimal places to round
 
-def get_window(window_size):
+def get_window():
     """
     returns a list of window of [window_size] readings
     """
@@ -47,18 +44,20 @@ def get_window(window_size):
     return [mode(xvals), mode(yvals), mode(zvals)]
 
 
+bvs = 1 #assume bay is vacant: 1; occupied: 0
 while 1:
     #no adjustment for magnetic declination on the arduino
     #first run saves readings as previous reading without sending anything
     if isFirst:
-        prv = get_window(calibrate_window) #RUN TWICE to let readings settle
+        prv = get_window() #RUN TWICE to let readings settle
+        prv = get_window()
         
         isFirst = not isFirst
 
     ################################
     #determine bay vacancy status
     ################################
-    window = get_window(window_size)
+    window = get_window()
     xchanged = (prv[0] - window[0]) != 0
     ychanged = (prv[1] - window[1]) != 0
     zchanged = (prv[2] - window[2]) != 0
@@ -70,12 +69,10 @@ while 1:
     """
 
     #"calculate" the vacancy based on window
-    if not (xchanged or ychanged or zchanged):
-        bvs = 0 #bay is occupied
-        print("bay is occupied")
-    else:
-			  bvs = 1 #bay is vacant
-				print("bay is vacant")
+    if xchanged or ychanged or zchanged:
+        print("bay status changed")
+        #send bay vacancy status changed
+        bvs = not bvs
 
     # Create a UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -85,5 +82,8 @@ while 1:
     #Pack three 32-bit floats into message and send
     message = pack('5f', bay, bvs, window[0], window[1], window[2])
     sock.sendto(message, server_address)
+
+    #update previous readings with last reading
+    prv = window
 
     sleep(1) #1sec
